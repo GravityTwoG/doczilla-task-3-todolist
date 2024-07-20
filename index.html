@@ -10,7 +10,7 @@
       <div class="header__placeholder"></div>
       <header>
         <div class="header__content">
-          <input type="search" placeholder="Поиск" />
+          <input type="search" id="search" placeholder="Поиск" />
 
           <button class="header__button">User</button>
         </div>
@@ -19,13 +19,13 @@
 
     <div class="wrapper">
       <aside class="sidebar">
-        <button>Сегодня</button>
-        <button>На неделю</button>
+        <button type="button" id="todayFilter">Сегодня</button>
+        <button type="button" id="weekFilter">На неделю</button>
 
-        <input class="date" type="date" name="" id="" />
+        <input class="date" type="date" id="dateFilter" />
 
         <div class="todo-filter">
-          <input type="checkbox" name="" id="onlyDone" />
+          <input type="checkbox" name="" id="statusFilter" />
 
           <label for="onlyDone">Только выполненные</label>
         </div>
@@ -42,24 +42,7 @@
             </select>
           </header>
 
-          <ul class="todos">
-            <li class="todo">
-              <div class="todo__content">
-                <div class="todo__info">
-                  <p class="todo__title">Название</p>
-                  <p class="todo__description">Описание</p>
-                </div>
-
-                <div class="todo__checkbox">
-                  <input type="checkbox" name="" id="" />
-                </div>
-              </div>
-
-              <div class="todo__date">
-                <time datetime="2022-05-08"> 08.05.2022 09:00</time>
-              </div>
-            </li>
-          </ul>
+          <ul class="todos" id="todoList"></ul>
         </div>
       </main>
     </div>
