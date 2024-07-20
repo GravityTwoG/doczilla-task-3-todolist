@@ -64,6 +64,14 @@ body {
   margin-bottom: 1rem;
 }
 
+.sidebar .todo-filter input {
+  cursor: pointer;
+}
+
+.sidebar .todo-filter label {
+  cursor: pointer;
+}
+
 .page {
   flex: 1;
   padding: 2rem;
@@ -107,6 +115,7 @@ body {
   font-weight: bold;
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
+  cursor: pointer;
 }
 
 .todo__description {
@@ -125,22 +134,23 @@ body {
 }
 
 .todo-modal {
-  /* display: none; */
   width: 100%;
   height: 100vh;
-  /* position: fixed; */
+  position: fixed;
   top: 0;
   left: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+
+  overflow: auto;
 }
 
 .todo-modal__inner {
   max-width: 768px;
   min-width: 400px;
-  margin: 0 auto;
+  margin: 2rem auto;
   padding: 2rem;
   background-color: white;
   border-radius: 8px;
