@@ -1,12 +1,13 @@
 import './style.css';
 
 import { fetchTodos } from './api';
+import { Observable } from './observable';
 
 import { TodoSearchView } from './TodoSearchView';
 import { TodoListView } from './TodoListView';
 
 class TodoListModel {
-  #todos = [];
+  #todos = new Observable([]);
 
   #query = {
     type: 'all', // all, byDate, byName
@@ -27,7 +28,7 @@ class TodoListModel {
 
   #loadTodos = async () => {
     const todos = await fetchTodos(this.#query);
-    this.#todos = todos;
+    this.#todos.set(todos);
   };
 
   loadTodosByStatus = async (status) => {
@@ -83,14 +84,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusFilter = document.querySelector('#statusFilter');
   statusFilter.addEventListener('change', async (event) => {
     await model.loadTodosByStatus(event.target.checked);
-    todoListView.setTodos(model.getTodos());
   });
 
   const todayFilter = document.querySelector('#todayFilter');
   todayFilter.addEventListener('click', async () => {
     await model.loadTodosByDates(Date.now() - 24 * 60 * 60 * 1000, Date.now());
-
-    todoListView.setTodos(model.getTodos());
   });
 
   const weekFilter = document.querySelector('#weekFilter');
@@ -99,8 +97,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       Date.now() - 7 * 24 * 60 * 60 * 1000,
       Date.now()
     );
-
-    todoListView.setTodos(model.getTodos());
   });
 
   const dateFilter = document.querySelector('#dateFilter');
@@ -109,17 +105,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       new Date(event.target.value).getTime(),
       Date.now()
     );
-    todoListView.setTodos(model.getTodos());
   });
 
   const searchForm = document.querySelector('#searchForm');
 
   new TodoSearchView(searchForm, async (searchQuery) => {
     await model.loadTodosByName(searchQuery);
-    todoListView.setTodos(model.getTodos());
   });
 
-  await model.init();
+  model.getTodos().subscribe((todos) => todoListView.setTodos(todos));
 
-  todoListView.setTodos(model.getTodos());
+  await model.init();
 });
