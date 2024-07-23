@@ -4,14 +4,14 @@ export class TodoListView {
   constructor(element) {
     this.list = element;
 
-    this.list.addEventListener('click', this.#onTodoClick.bind(this));
+    this.list.addEventListener('click', this.#onTodoClick);
   }
 
   destroy() {
     this.list.removeEventListener('click', this.#onTodoClick);
   }
 
-  #onTodoClick(event) {
+  #onTodoClick = (event) => {
     const todoElement = event.target.closest('p.todo__title');
     if (!todoElement) {
       return;
@@ -29,7 +29,7 @@ export class TodoListView {
 
     const todoModal = new TodoModalView(document.body);
     todoModal.show(todo);
-  }
+  };
 
   setTodos(todos) {
     this.todos = todos;

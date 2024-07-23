@@ -63,13 +63,10 @@ export class TodoModalView {
     this.todoModalInner = todoModalInner;
     this.todoModalClose = todoModalClose;
 
-    todoModal.addEventListener('click', this.#onTodoModalClose.bind(this));
-
-    todoModalInner.addEventListener('click', this.#onTodoClick.bind(this));
-
-    todoModalClose.addEventListener('click', this.#onTodoModalClose.bind(this));
-
-    window.addEventListener('keydown', this.#onEscape.bind(this));
+    todoModal.addEventListener('click', this.#onTodoModalClose);
+    todoModalInner.addEventListener('click', this.#onTodoClick);
+    todoModalClose.addEventListener('click', this.#onTodoModalClose);
+    window.addEventListener('keydown', this.#onEscape);
 
     document.body.style.overflow = 'hidden';
   }
@@ -94,17 +91,17 @@ export class TodoModalView {
     document.body.style.overflow = 'auto';
   }
 
-  #onTodoModalClose() {
+  #onTodoModalClose = () => {
     this.hide();
-  }
+  };
 
-  #onTodoClick(event) {
+  #onTodoClick = (event) => {
     event.stopPropagation();
-  }
+  };
 
-  #onEscape(event) {
+  #onEscape = (event) => {
     if (event.key === 'Escape') {
       this.hide();
     }
-  }
+  };
 }

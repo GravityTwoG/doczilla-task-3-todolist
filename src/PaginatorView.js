@@ -5,11 +5,12 @@ export class PaginatorView {
     this.hasMore = 1;
     this.pageNumber = 1;
 
-    this.parent.addEventListener('click', this.#onPageClick.bind(this));
+    this.parent.addEventListener('click', this.#onPageClick);
   }
 
   destroy() {
     this.parent.replaceChildren();
+    this.parent.removeEventListener('click', this.#onPageClick);
   }
 
   setHasMore(hasMore) {
@@ -55,12 +56,12 @@ export class PaginatorView {
     });
   }
 
-  #onPageClick(event) {
+  #onPageClick = (event) => {
     const pageNumber = parseInt(event.target.dataset.pageNumber);
     if (!pageNumber) {
       return;
     }
 
     this.onPageChange(pageNumber);
-  }
+  };
 }

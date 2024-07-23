@@ -12,11 +12,11 @@ export class TodoSearchView {
     this.searchInput = document.querySelector('#search');
     this.searchResults = document.querySelector('#searchResults');
 
-    this.searchForm.addEventListener('submit', this.#onSubmit.bind(this));
+    this.searchForm.addEventListener('submit', this.#onSubmit);
 
-    this.searchInput.addEventListener('focus', this.#onFocus.bind(this));
-    this.searchInput.addEventListener('input', this.#onChange.bind(this));
-    this.searchInput.addEventListener('blur', this.#onBlur.bind(this));
+    this.searchInput.addEventListener('focus', this.#onFocus);
+    this.searchInput.addEventListener('input', this.#onChange);
+    this.searchInput.addEventListener('blur', this.#onBlur);
   }
 
   destroy() {
@@ -29,15 +29,15 @@ export class TodoSearchView {
     this.searchResults.removeEventListener('click', this.#onFoundTodoClick);
   }
 
-  #onSubmit(event) {
+  #onSubmit = (event) => {
     event.preventDefault();
     this.onSubmit(this.searchInput.value);
-  }
+  };
 
-  #onFocus() {
+  #onFocus = () => {
     searchResults.style.display = 'flex';
-    searchResults.addEventListener('click', this.#onFoundTodoClick.bind(this));
-  }
+    searchResults.addEventListener('click', this.#onFoundTodoClick);
+  };
 
   #onChange = debounce(async (event) => {
     this.foundTodos = await fetchTodos({
@@ -57,17 +57,14 @@ export class TodoSearchView {
     });
   }, 300);
 
-  #onBlur() {
+  #onBlur = () => {
     setTimeout(() => {
-      this.searchResults.removeEventListener(
-        'click',
-        this.#onFoundTodoClick.bind(this)
-      );
+      this.searchResults.removeEventListener('click', this.#onFoundTodoClick);
       this.searchResults.style.display = 'none';
     }, 300);
-  }
+  };
 
-  #onFoundTodoClick(event) {
+  #onFoundTodoClick = (event) => {
     event.stopPropagation();
 
     const todoElement = event.target.closest('li.found-todo');
@@ -86,5 +83,5 @@ export class TodoSearchView {
 
     const todoModal = new TodoModalView(document.body);
     todoModal.show(todo);
-  }
+  };
 }
