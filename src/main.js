@@ -39,7 +39,7 @@ class TodoListModel {
 
   loadTodosByStatus = async (status) => {
     this.#query.type = 'byDate';
-    if (this.#query.from === null) {
+    if (this.#query.from === null || this.#query.to === null) {
       this.#query.from = 0;
       this.#query.to = Date.now();
     }
@@ -52,14 +52,19 @@ class TodoListModel {
 
   loadTodosByDates = async (fromMs, toMs) => {
     this.#query.type = 'byDate';
-    this.#query.from = fromMs;
-    this.#query.to = toMs;
+    this.#query.from = fromMs === null ? this.#query.from : fromMs;
+    this.#query.to = toMs === null ? this.#query.to : toMs;
     this.#query.status =
-      this.#query.status === false || this.#query.status === true
-        ? this.#query.status
-        : false;
+      typeof this.#query.status === 'boolean' ? this.#query.status : false;
 
     this.#query.q = null;
+
+    if (this.#query.from === null) {
+      this.#query.from = 0;
+    }
+    if (this.#query.to === null) {
+      this.#query.to = Date.now();
+    }
 
     await this.loadTodos(1);
   };
@@ -113,12 +118,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
   });
 
-  const dateFilter = document.querySelector('#dateFilter');
-  dateFilter.addEventListener('change', async (event) => {
-    await model.loadTodosByDates(
-      new Date(event.target.value).getTime(),
-      Date.now()
-    );
+  const dateFrom = document.querySelector('#dateFrom');
+  dateFrom.addEventListener('change', async (event) => {
+    await model.loadTodosByDates(new Date(event.target.value).getTime(), null);
+  });
+
+  const dateTo = document.querySelector('#dateTo');
+  dateTo.addEventListener('change', async (event) => {
+    await model.loadTodosByDates(null, new Date(event.target.value).getTime());
   });
 
   const searchForm = document.querySelector('#searchForm');
