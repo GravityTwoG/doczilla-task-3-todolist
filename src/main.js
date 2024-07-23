@@ -5,15 +5,15 @@ import { Observable } from './observable';
 
 import { TodoSearchView } from './TodoSearchView';
 import { TodoListView } from './TodoListView';
+import { PaginatorView } from './PaginatorView';
 
 class TodoListModel {
   #todos = new Observable([]);
+  #pageSize = new Observable(10);
+  #pageNumber = new Observable(1);
 
   #query = {
     type: 'all', // all, byDate, byName
-
-    limit: 10,
-    offset: 0,
 
     from: null,
     to: null,
@@ -23,11 +23,17 @@ class TodoListModel {
   };
 
   init = async () => {
-    await this.#loadTodos();
+    await this.loadTodos(1);
   };
 
-  #loadTodos = async () => {
-    const todos = await fetchTodos(this.#query);
+  loadTodos = async (pageNumber) => {
+    const todos = await fetchTodos({
+      ...this.#query,
+      limit: this.#pageSize.get(),
+      offset: (pageNumber - 1) * this.#pageSize.get(),
+    });
+    this.#pageNumber.set(pageNumber);
+
     this.#todos.set(todos);
   };
 
@@ -41,7 +47,7 @@ class TodoListModel {
 
     this.#query.q = null;
 
-    await this.#loadTodos();
+    await this.loadTodos(1);
   };
 
   loadTodosByDates = async (fromMs, toMs) => {
@@ -55,7 +61,7 @@ class TodoListModel {
 
     this.#query.q = null;
 
-    await this.#loadTodos();
+    await this.loadTodos(1);
   };
 
   loadTodosByName = async (name) => {
@@ -66,11 +72,19 @@ class TodoListModel {
     this.#query.to = null;
     this.#query.status = null;
 
-    await this.#loadTodos();
+    await this.loadTodos(1);
   };
 
   getTodos = () => {
     return this.#todos;
+  };
+
+  getPageSize = () => {
+    return this.#pageSize;
+  };
+
+  getPageNumber = () => {
+    return this.#pageNumber;
   };
 }
 
@@ -113,7 +127,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     await model.loadTodosByName(searchQuery);
   });
 
+  const paginatorView = new PaginatorView(
+    document.querySelector('#paginator'),
+    (pageNumber) => {
+      model.loadTodos(pageNumber);
+    }
+  );
+
   model.getTodos().subscribe((todos) => todoListView.setTodos(todos));
+
+  model
+    .getPageNumber()
+    .subscribe((pageNumber) => paginatorView.setPageNumber(pageNumber));
+
+  model.getTodos().subscribe((todos) => {
+    paginatorView.setHasMore(todos.length >= model.getPageSize().get());
+  });
 
   await model.init();
 });

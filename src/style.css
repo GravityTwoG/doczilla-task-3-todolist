@@ -185,6 +185,29 @@ body {
   align-items: center;
 }
 
+.paginator {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.paginator__page {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  min-width: 2rem;
+  text-align: center;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
 .todo-modal {
   width: 100%;
   height: 100vh;
