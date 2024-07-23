@@ -14,3 +14,18 @@ export function debounce(callee, timeoutMs) {
     lastCallTimer = setTimeout(() => callee(...args), timeoutMs);
   };
 }
+
+export const MS_PER_DAY = 86400 * 1000;
+
+export function getStartOfTheDay(dateMs) {
+  const beginning = dateMs - (dateMs % MS_PER_DAY);
+  return beginning;
+}
+
+export function getStartOfTheWeek(dateMs) {
+  const date = new Date(dateMs);
+  const day = date.getDay();
+
+  const beginningDay = dateMs - day * MS_PER_DAY;
+  return getStartOfTheDay(beginningDay);
+}

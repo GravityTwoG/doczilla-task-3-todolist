@@ -1,104 +1,14 @@
 import './style.css';
 
-import { fetchTodos } from './api';
-import { Observable } from './observable';
+import { getStartOfTheDay, getStartOfTheWeek, MS_PER_DAY } from './utils';
 
 import { TodoSearchView } from './TodoSearchView';
 import { TodoListView } from './TodoListView';
 import { PaginatorView } from './PaginatorView';
-
-class TodoListModel {
-  #todos = new Observable([]);
-  #pageSize = new Observable(10);
-  #pageNumber = new Observable(1);
-
-  #query = {
-    type: 'all', // all, byDate, byName
-
-    from: null,
-    to: null,
-    status: null,
-
-    q: null,
-  };
-
-  init = async () => {
-    await this.loadTodos(1);
-  };
-
-  loadTodos = async (pageNumber) => {
-    const todos = await fetchTodos({
-      ...this.#query,
-      limit: this.#pageSize.get(),
-      offset: (pageNumber - 1) * this.#pageSize.get(),
-    });
-    this.#pageNumber.set(pageNumber);
-
-    this.#todos.set(todos);
-  };
-
-  loadTodosByStatus = async (status) => {
-    this.#query.type = 'byDate';
-    if (this.#query.from === null || this.#query.to === null) {
-      this.#query.from = 0;
-      this.#query.to = Date.now();
-    }
-    this.#query.status = status;
-
-    this.#query.q = null;
-
-    await this.loadTodos(1);
-  };
-
-  loadTodosByDates = async (fromMs, toMs) => {
-    this.#query.type = 'byDate';
-    this.#query.from = fromMs === null ? this.#query.from : fromMs;
-    this.#query.to = toMs === null ? this.#query.to : toMs;
-    this.#query.status =
-      typeof this.#query.status === 'boolean' ? this.#query.status : false;
-
-    this.#query.q = null;
-
-    if (this.#query.from === null) {
-      this.#query.from = 0;
-    }
-    if (this.#query.to === null) {
-      this.#query.to = Date.now();
-    }
-
-    await this.loadTodos(1);
-  };
-
-  loadTodosByName = async (name) => {
-    this.#query.type = 'byName';
-    this.#query.q = name;
-
-    this.#query.from = null;
-    this.#query.to = null;
-    this.#query.status = null;
-
-    await this.loadTodos(1);
-  };
-
-  getTodos = () => {
-    return this.#todos;
-  };
-
-  getPageSize = () => {
-    return this.#pageSize;
-  };
-
-  getPageNumber = () => {
-    return this.#pageNumber;
-  };
-}
+import { TodoListModel } from './TodoListModel';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const model = new TodoListModel();
-
-  const todoList = document.querySelector('#todoList');
-
-  const todoListView = new TodoListView(todoList);
 
   const statusFilter = document.querySelector('#statusFilter');
   statusFilter.addEventListener('change', async (event) => {
@@ -107,32 +17,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const todayFilter = document.querySelector('#todayFilter');
   todayFilter.addEventListener('click', async () => {
-    await model.loadTodosByDates(Date.now() - 24 * 60 * 60 * 1000, Date.now());
+    const now = Date.now();
+    await model.loadTodosByDates(getStartOfTheDay(now), now);
   });
 
   const weekFilter = document.querySelector('#weekFilter');
   weekFilter.addEventListener('click', async () => {
-    await model.loadTodosByDates(
-      Date.now() - 7 * 24 * 60 * 60 * 1000,
-      Date.now()
-    );
+    const now = Date.now();
+    await model.loadTodosByDates(getStartOfTheWeek(now), now);
   });
 
   const dateFrom = document.querySelector('#dateFrom');
   dateFrom.addEventListener('change', async (event) => {
-    await model.loadTodosByDates(new Date(event.target.value).getTime(), null);
+    const time = new Date(event.target.value).getTime();
+    console.log(time, new Date(event.target.value));
+    await model.loadTodosByDates(getStartOfTheDay(time), null);
   });
 
   const dateTo = document.querySelector('#dateTo');
   dateTo.addEventListener('change', async (event) => {
-    await model.loadTodosByDates(null, new Date(event.target.value).getTime());
+    const time = new Date(event.target.value).getTime();
+    await model.loadTodosByDates(null, getStartOfTheDay(time) + MS_PER_DAY - 1);
   });
 
-  const searchForm = document.querySelector('#searchForm');
-
-  new TodoSearchView(searchForm, async (searchQuery) => {
-    await model.loadTodosByName(searchQuery);
-  });
+  new TodoSearchView(
+    document.querySelector('#searchForm'),
+    async (searchQuery) => {
+      await model.loadTodosByName(searchQuery);
+    }
+  );
 
   const paginatorView = new PaginatorView(
     document.querySelector('#paginator'),
@@ -140,6 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       model.loadTodos(pageNumber);
     }
   );
+
+  const todoListView = new TodoListView(document.querySelector('#todoList'));
 
   model.getTodos().subscribe((todos) => todoListView.setTodos(todos));
 
@@ -151,5 +66,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     paginatorView.setHasMore(todos.length >= model.getPageSize().get());
   });
 
-  await model.init();
+  model.getFromMs().subscribe((fromMs) => {
+    dateFrom.value = new Date(fromMs).toISOString().split('T')[0];
+  });
+
+  model.getToMs().subscribe((toMs) => {
+    dateTo.value = new Date(toMs).toISOString().split('T')[0];
+  });
+
+  model.getStatus().subscribe((status) => {
+    statusFilter.checked = status;
+  });
+
+  const now = Date.now();
+  await model.loadTodosByDates(getStartOfTheWeek(now), now);
 });

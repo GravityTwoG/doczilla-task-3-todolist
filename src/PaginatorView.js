@@ -29,19 +29,19 @@ export class PaginatorView {
     if (currentPageNumber > 1) {
       pages.push({
         number: currentPageNumber - 1,
-        label: 'prev',
+        label: 'Назад',
       });
     }
 
     pages.push({
       number: currentPageNumber,
-      label: 'current',
+      label: 'Текущая',
     });
 
     if (hasMore) {
       pages.push({
         number: currentPageNumber + 1,
-        label: 'next',
+        label: 'Далее',
       });
     }
 
