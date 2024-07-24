@@ -30,8 +30,9 @@ const fetchAllTodos = async (query) => {
     { method: 'GET' }
   );
 
-  const data = await response.json();
-  return data;
+  await checkError(response);
+
+  return response.json();
 };
 
 const fetchTodosByDate = async (query) => {
@@ -43,9 +44,9 @@ const fetchTodosByDate = async (query) => {
     }`,
     { method: 'GET' }
   );
+  await checkError(response);
 
-  const data = await response.json();
-  return data;
+  return response.json();
 };
 
 const fetchTodosByName = async (query) => {
@@ -54,6 +55,22 @@ const fetchTodosByName = async (query) => {
     { method: 'GET' }
   );
 
-  const data = await response.json();
-  return data;
+  await checkError(response);
+
+  return response.json();
 };
+
+async function checkError(response) {
+  if (!response.ok) {
+    const isJson = response.headers
+      .get('Content-Type')
+      .includes('application/json');
+
+    if (isJson) {
+      const error = await response.json();
+      throw new Error(error.error);
+    }
+
+    throw new Error(response.statusText);
+  }
+}

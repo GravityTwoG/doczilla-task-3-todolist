@@ -57,6 +57,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     todosStartingDate.textContent = dateLongFormat.format(date);
   });
 
+  const errorContainer = document.querySelector('#error');
+  model.getError().subscribe((error) => {
+    if (error) {
+      const errorElement = document.createElement('div');
+      errorElement.classList.add('error');
+      errorElement.textContent = error;
+      errorContainer.replaceChildren(errorElement);
+    } else {
+      errorContainer.replaceChildren();
+    }
+  });
+
   new TodoSearchView(
     document.querySelector('#searchForm'),
     async (searchQuery) => {

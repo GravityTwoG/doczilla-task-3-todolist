@@ -18,30 +18,41 @@ export class TodoListModel {
     q: null,
   };
 
+  #error = new Observable('');
+
   init = async () => {
     await this.loadTodos(1);
   };
 
   loadTodos = async (pageNumber) => {
-    const todos = await fetchTodos({
-      ...this.#query,
-      limit: this.#pageSize.get(),
-      offset: (pageNumber - 1) * this.#pageSize.get(),
-      from: this.#fromMs.get(),
-      to: this.#toMs.get(),
-      status: this.#status.get(),
+    try {
+      this.#error.set('');
+
+      const todos = await fetchTodos({
+        ...this.#query,
+        limit: this.#pageSize.get(),
+        offset: (pageNumber - 1) * this.#pageSize.get(),
+        from: this.#fromMs.get(),
+        to: this.#toMs.get(),
+        status: this.#status.get(),
+      });
+      this.#pageNumber.set(pageNumber);
+
+      this.#todos.set(this.#sortTodos(todos));
+    } catch (e) {
+      this.#error.set(e.message);
+    }
+  };
+
+  #sortTodos = (todos) => {
+    todos.sort((a, b) => {
+      if (this.#sort.get() === 'byDateAsc') {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
+
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
-    this.#pageNumber.set(pageNumber);
-
-    this.#todos.set(
-      todos.sort((a, b) => {
-        if (this.#sort.get() === 'byDateAsc') {
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        }
-
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      })
-    );
+    return todos;
   };
 
   loadTodosByStatus = async (status) => {
@@ -116,5 +127,9 @@ export class TodoListModel {
 
   getSort = () => {
     return this.#sort;
+  };
+
+  getError = () => {
+    return this.#error;
   };
 }
