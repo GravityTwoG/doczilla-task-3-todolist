@@ -36,7 +36,11 @@ const fetchAllTodos = async (query) => {
 
 const fetchTodosByDate = async (query) => {
   const response = await fetch(
-    `${API_BASE_URL}/todos/date?from=${query.from}&to=${query.to}&status=${query.status}&limit=${query.limit}&offset=${query.offset}`,
+    `${API_BASE_URL}/todos/date?from=${query.from}&to=${query.to}&limit=${
+      query.limit
+    }&offset=${query.offset}${
+      query.status !== null ? `&status=${query.status}` : ''
+    }`,
     { method: 'GET' }
   );
 

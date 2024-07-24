@@ -16,9 +16,9 @@ const dateLongFormat = new Intl.DateTimeFormat('ru-RU', {
 document.addEventListener('DOMContentLoaded', async () => {
   const model = new TodoListModel();
 
-  const statusFilter = document.querySelector('#statusFilter');
-  statusFilter.addEventListener('change', async (event) => {
-    await model.loadTodosByStatus(event.target.checked);
+  const onlyNotDoneFilter = document.querySelector('#onlyNotDoneFilter');
+  onlyNotDoneFilter.addEventListener('change', async (event) => {
+    await model.loadTodosByStatus(event.target.checked === true ? false : null);
   });
 
   const todayFilter = document.querySelector('#todayFilter');
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   model.getStatus().subscribe((status) => {
-    statusFilter.checked = status;
+    onlyNotDoneFilter.checked = status === false;
   });
 
   const now = Date.now();

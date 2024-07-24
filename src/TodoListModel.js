@@ -59,10 +59,6 @@ export class TodoListModel {
     this.#fromMs.set(fromMs === null ? this.#fromMs.get() : fromMs);
     this.#toMs.set(toMs === null ? this.#toMs.get() : toMs);
 
-    this.#status.set(
-      typeof this.#status.get() === 'boolean' ? this.#status.get() : false
-    );
-
     this.#query.q = null;
     this.#prepareQuery();
 
