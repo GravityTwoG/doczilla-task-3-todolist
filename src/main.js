@@ -7,6 +7,12 @@ import { TodoListView } from './TodoListView';
 import { PaginatorView } from './PaginatorView';
 import { TodoListModel } from './TodoListModel';
 
+const dateLongFormat = new Intl.DateTimeFormat('ru-RU', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   const model = new TodoListModel();
 
@@ -38,6 +44,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   dateTo.addEventListener('change', async (event) => {
     const time = new Date(event.target.value).getTime();
     await model.loadTodosByDates(null, getStartOfTheDay(time) + MS_PER_DAY - 1);
+  });
+
+  const dateSort = document.querySelector('#dateSort');
+  dateSort.addEventListener('change', async (event) => {
+    model.sortBy(event.target.value);
+  });
+
+  const todosStartingDate = document.querySelector('#todosStartingDate');
+  model.getTodos().subscribe((todos) => {
+    const date = new Date(todos.length ? todos[0].date : Date.now());
+    todosStartingDate.textContent = dateLongFormat.format(date);
   });
 
   new TodoSearchView(

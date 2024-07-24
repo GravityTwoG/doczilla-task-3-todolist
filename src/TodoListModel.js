@@ -11,6 +11,8 @@ export class TodoListModel {
   #toMs = new Observable(null);
   #status = new Observable(null);
 
+  #sort = new Observable('byDateAsc'); // byDateAsc, byDateDesc
+
   #query = {
     type: 'all', // all, byDate, byName
     q: null,
@@ -31,7 +33,15 @@ export class TodoListModel {
     });
     this.#pageNumber.set(pageNumber);
 
-    this.#todos.set(todos);
+    this.#todos.set(
+      todos.sort((a, b) => {
+        if (this.#sort.get() === 'byDateAsc') {
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }
+
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      })
+    );
   };
 
   loadTodosByStatus = async (status) => {
@@ -79,6 +89,11 @@ export class TodoListModel {
     await this.loadTodos(1);
   };
 
+  sortBy = async (sort) => {
+    this.#sort.set(sort);
+    await this.loadTodos(this.#pageNumber.get());
+  };
+
   getTodos = () => {
     return this.#todos;
   };
@@ -101,5 +116,9 @@ export class TodoListModel {
 
   getStatus = () => {
     return this.#status;
+  };
+
+  getSort = () => {
+    return this.#sort;
   };
 }
